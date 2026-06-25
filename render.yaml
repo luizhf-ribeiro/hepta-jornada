@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: hepta-jornada-homologacao
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: HEPTA_HOST
+        value: 0.0.0.0
+      - key: HEPTA_CORPORATE_DOMAIN
+        value: '@hepta.com.br'
+      - key: HEPTA_SESSION_MINUTES
+        value: '720'
+      - key: HEPTA_FIRST_BUSINESS_DAY_DEADLINE
+        value: '21:00'
+      - key: HEPTA_LEGAL_TOLERANCE_PER_MARK_MIN
+        value: '5'
+      - key: HEPTA_LEGAL_TOLERANCE_DAY_MIN
+        value: '10'
+      - key: HEPTA_MANAGEMENT_DELAY_ALERT_MIN
+        value: '15'
+      - key: DATABASE_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: '587'
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_TLS
+        value: '1'

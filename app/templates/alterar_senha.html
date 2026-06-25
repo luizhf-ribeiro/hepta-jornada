@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% block content %}
+<section class="card"><h1>Alterar senha</h1>
+{% if error %}<div class="alert erro">{{ error }}</div>{% endif %}
+{% if success %}<div class="alert ok">{{ success }}</div>{% endif %}
+<form method="post" class="form-grid">
+<label>Senha atual<input type="password" name="current_password" required></label>
+<label>Nova senha<input type="password" name="new_password" minlength="8" required></label>
+<label>Confirmar nova senha<input type="password" name="confirm_password" minlength="8" required></label>
+<button>Salvar nova senha</button>
+</form>
+<p class="muted">A senha deve ter pelo menos 8 caracteres. Trocas e resets ficam registrados na auditoria.</p>
+</section>
+{% endblock %}

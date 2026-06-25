@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="hero">
+  <h1>{% if gestor_view %}Painel do colaborador{% else %}Meu painel mensal{% endif %}</h1>
+  <p>{{panel.employee.name}} · {{panel.employee.email}} · Mês {{panel.month_ref}}</p>
+  <form method="get" class="form-inline month-filter">
+    <label>Selecionar mês</label>
+    <select name="mes">
+      {% for m in months %}<option value="{{m}}" {% if m == panel.month_ref %}selected{% endif %}>{{m}}</option>{% endfor %}
+    </select>
+    <button>Aplicar</button>
+  </form>
+</section>
+
+<section class="kpi-grid">
+  <div class="kpi"><span>Assiduidade</span><strong>{{panel.cards.assiduity}}%</strong><small>{{panel.cards.present_days}} de {{panel.cards.expected_days}} dias úteis</small></div>
+  <div class="kpi"><span>Horas previstas</span><strong>{{panel.cards.expected}}</strong><small>Base mensal cadastrada</small></div>
+  <div class="kpi"><span>Horas trabalhadas</span><strong>{{panel.cards.worked}}</strong><small>Registros + ajustes aprovados</small></div>
+  <div class="kpi"><span>Saldo geral</span><strong>{{panel.cards.balance}}</strong><small>positivo ou negativo</small></div>
+  <div class="kpi positive"><span>Saldo positivo</span><strong>{{panel.cards.positive}}</strong><small>horas excedentes</small></div>
+  <div class="kpi negative"><span>Saldo negativo</span><strong>{{panel.cards.negative}}</strong><small>ausências / jornada menor</small></div>
+  <div class="kpi"><span>Faltas / sem registro</span><strong>{{panel.cards.absences}}</strong><small>dias úteis sem marcação</small></div>
+  <div class="kpi"><span>Pendências</span><strong>{{panel.cards.pending}}</strong><small>ajustes aguardando gestor</small></div>
+</section>
+
+<section class="card">
+  <h2>Folha oficial HEPTA anexada</h2>
+  {% if panel.sheet %}
+  <div class="sheet-info">
+    <div><strong>Status:</strong> {{panel.sheet.status}}</div>
+    <div><strong>Versão:</strong> V{{panel.sheet.version}}</div>
+    <div><strong>Validação:</strong> {{panel.sheet.validated_at or "Pendente"}}</div>
+    <div><strong>Motivo/observação:</strong> {{panel.sheet.rejection_reason or panel.sheet.validation_note or "-"}}</div>
+    <div><strong>Envio:</strong> {{panel.sheet.created_at}}</div>
+    <div><strong>Nome identificado:</strong> {{panel.sheet.parsed_name or 'Não identificado automaticamente'}}</div>
+    <div><strong>Período PDF:</strong> {{panel.sheet.parsed_period or 'Não identificado automaticamente'}}</div>
+    <div><strong>Função:</strong> {{panel.sheet.parsed_function or 'Não identificada automaticamente'}}</div>
+    <div><strong>Jornada:</strong> {{panel.sheet.parsed_schedule or 'Não identificada automaticamente'}}</div>
+    <div><strong>Preenchida à mão:</strong> {{'Sim' if panel.sheet.manual_filled else 'Não'}}</div>
+    <div><strong>Assinatura GOV.br:</strong> {{'Sim' if panel.sheet.govbr_signed else 'Não'}}</div>
+    <div><a class="mini-btn" href="/folha/download/{{panel.sheet.id}}">Baixar folha anexada</a></div>
+  </div>
+  {% else %}
+  <p class="muted">Nenhuma folha oficial HEPTA anexada para este mês. O colaborador deve anexar o PDF em “Folha HEPTA”.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Calendário de acompanhamento</h2>
+  <div class="legend">
+    <span class="dot presente"></span> Presente
+    <span class="dot atencao"></span> Jornada menor
+    <span class="dot incompleto"></span> Incompleto
+    <span class="dot ausente"></span> Sem registro
+    <span class="dot folga"></span> Fim de semana
+  </div>
+  <div class="calendar-grid">
+    {% for d in panel.days %}
+    <div class="day-card {{d.status_class}}">
+      <div class="day-top"><strong>{{d.day}}</strong><span>{{d.weekday}}</span></div>
+      <div class="day-status">{{d.status}}</div>
+      <div class="day-hours">Trab.: {{d.worked}} · Prev.: {{d.expected}}</div>
+      <div class="day-balance {% if d.positive %}saldo-pos{% elif d.negative %}saldo-neg{% endif %}">Saldo: {{d.balance}}</div>
+      {% if d.events_text %}<small>{{d.events_text}}</small>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

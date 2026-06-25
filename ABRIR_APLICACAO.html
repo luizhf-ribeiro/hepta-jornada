@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HEPTA Jornada | Abrir Aplicação</title>
+  <style>
+    :root{--azul:#0b3a4a;--azul2:#0e566e;--amarelo:#f4c542;--cinza:#f4f6f8;--texto:#1f2933}
+    *{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#0b3a4a,#0e566e);min-height:100vh;display:flex;align-items:center;justify-content:center;color:var(--texto)}
+    .card{width:min(920px,92vw);background:white;border-radius:24px;box-shadow:0 24px 60px rgba(0,0,0,.28);overflow:hidden}
+    .top{padding:34px 42px;background:#f8fafc;border-bottom:5px solid var(--amarelo)}
+    .brand{font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--azul2);text-transform:uppercase}.top h1{margin:10px 0 8px;font-size:36px;color:var(--azul)}.top p{margin:0;color:#53616c;font-size:17px}
+    .body{padding:34px 42px;display:grid;grid-template-columns:1.2fr .8fr;gap:28px}.box{background:var(--cinza);border:1px solid #e3e8ee;border-radius:18px;padding:22px}.box h2{margin:0 0 12px;color:var(--azul);font-size:19px}.btn{display:inline-block;margin-top:14px;background:var(--azul);color:white;text-decoration:none;border-radius:12px;padding:14px 22px;font-weight:700}.btn:hover{background:var(--azul2)}.muted{color:#65727e;font-size:14px;line-height:1.5}ol{padding-left:20px;margin:10px 0}.status{padding:12px 14px;border-radius:12px;background:#fff8db;border:1px solid #f1d36a;color:#6b5200;font-size:14px}code{background:#edf2f7;padding:2px 6px;border-radius:6px}@media(max-width:760px){.body{grid-template-columns:1fr}.top,.body{padding:26px}.top h1{font-size:28px}}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <section class="top">
+      <div class="brand">HEPTA | CETESB</div>
+      <h1>Sistema de Controle de Jornada</h1>
+      <p>Interface local para acesso ao portal de registro, aprovações, folha oficial e auditoria.</p>
+    </section>
+    <section class="body">
+      <div class="box">
+        <h2>Abrir sistema</h2>
+        <p class="muted">Antes de clicar, o servidor local precisa estar iniciado no computador ou servidor da empresa.</p>
+        <a class="btn" href="http://localhost:8000/login">Entrar na aplicação</a>
+        <p class="muted">Em servidor de rede, trocar <code>localhost</code> pelo IP ou nome do servidor. Exemplo: <code>http://servidor-hepta:8000/login</code>.</p>
+      </div>
+      <div class="box">
+        <h2>Como iniciar</h2>
+        <ol class="muted">
+          <li>Execute o arquivo <strong>iniciar_windows.bat</strong> no Windows.</li>
+          <li>Ou rode <code>python run.py</code> dentro da pasta do sistema.</li>
+          <li>Depois clique em <strong>Entrar na aplicação</strong>.</li>
+        </ol>
+        <div class="status">Primeiro acesso: <strong>admin@hepta.local</strong><br>Senha: <strong>Hepta@123</strong></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

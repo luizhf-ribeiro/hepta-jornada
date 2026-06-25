@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block content %}
+<section class="hero"><h1>Registro de Jornada</h1><p>{{user.name}} · {{today}}</p>{% if pending %}<strong>{{pending}} ajustes pendentes para aprovação.</strong>{% endif %}</section>
+{% if release and not release.released %}
+<section class="card alert-card"><h2>Registro bloqueado</h2><p>{{release.reason}}</p><p><strong>Regra:</strong> no 1º dia útil do mês, o colaborador deve anexar a folha do mês anterior preenchida à mão e assinada via GOV.br para liberar os apontamentos do mês atual.</p><a class="mini-btn" href="/folha">Anexar folha agora</a></section>
+{% else %}
+<section class="grid four"><form method="post" action="/ponto/entrada"><button>Entrada</button></form><form method="post" action="/ponto/almoco_inicio"><button>Início Almoço</button></form><form method="post" action="/ponto/almoco_fim"><button>Retorno Almoço</button></form><form method="post" action="/ponto/saida"><button>Saída</button></form></section>
+{% endif %}
+<section class="card"><h2>Registros de hoje</h2><table><tr><th>Evento</th><th>Hora Servidor</th><th>IP</th></tr>{% for r in records %}<tr><td>{{r.event_type}}</td><td>{{r.server_time}}</td><td>{{r.ip}}</td></tr>{% endfor %}</table></section><section class="card"><h2>Regra de integridade</h2><p>O colaborador não altera registros passados. Divergências devem ser tratadas por solicitação de ajuste e aprovação do gestor.</p></section>{% endblock %}

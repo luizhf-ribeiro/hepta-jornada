@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+.env
+hepta_jornada.db
+uploads/
+backups/
+logs/
+.DS_Store
