@@ -19,7 +19,7 @@ templates = Jinja2Templates(directory=str(BASE/'templates'))
 @app.on_event('startup')
 def startup():
     init_db()
-    seed_admin()
+    #seed_admin()
 
 def seed_admin():
     conn = get_conn()
