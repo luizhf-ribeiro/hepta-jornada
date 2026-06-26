@@ -1,9 +1,75 @@
-{% extends 'base.html' %}{% block content %}
+{% extends 'base.html' %}
+
+{% block content %}
 <h1>Administração</h1>
+
 <section class="grid cards3">
-<div class="card"><h2>Criar usuário</h2><form method="post" action="/admin/usuarios" class="form-grid"><input name="name" placeholder="Nome" required><input name="email" type="email" placeholder="E-mail @hepta.com.br" required><input name="password" type="password" placeholder="Senha inicial" minlength="8" required><select name="role"><option value="colaborador">Colaborador</option><option value="gestor">Gestor</option><option value="admin">Admin</option></select><button>Criar</button></form></div>
-<div class="card"><h2>Fila de e-mails</h2><p>Processa alertas pendentes. Em homologação, sem SMTP, os envios são simulados no console.</p><form method="post" action="/admin/processar-emails"><button>Processar fila agora</button></form></div>
-<div class="card"><h2>Backup</h2><p>Use o comando <code>python backup.py</code> para gerar backup do banco e uploads.</p></div>
+    <div class="card">
+        <h2>Criar usuário</h2>
+        <form method="post" action="/admin/usuarios" class="form-grid">
+            <input name="name" placeholder="Nome" required>
+            <input name="email" type="email" placeholder="E-mail @hepta.com.br" required>
+            <input name="password" type="password" placeholder="Senha inicial" minlength="8" required>
+            <select name="role">
+                <option value="colaborador">Colaborador</option>
+                <option value="gestor">Gestor</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button>Criar</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Fila de e-mails</h2>
+        <p>Processa alertas pendentes. Em homologação, sem SMTP, os envios são simulados no console.</p>
+        <form method="post" action="/admin/processar-emails">
+            <button>Processar fila agora</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Backup</h2>
+        <p>Use o comando <code>python backup.py</code> para gerar backup do banco e uploads.</p>
+    </div>
 </section>
-<section class="card"><h2>Usuários</h2><table><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Ativo</th><th>Reset de senha</th></tr>{% for u in users %}<tr><td>{{u.id}}</td><td>{{u.name}}</td><td>{{u.email}}</td><td>{{u.role}}</td><td>{{u.active}}</td><td><form method="post" action="/admin/usuarios/{{u.id}}/resetar-senha" class="inline"><input name="new_password" type="password" placeholder="Nova senha" minlength="8" required><button>Resetar</button></form></td></tr>{% endfor %}</table></section>
+
+<section class="card">
+    <h2>Usuários</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Perfil</th>
+            <th>Ações</th>
+        </tr>
+        {% for u in users %}
+        <tr>
+            <td>{{u.id}}</td>
+            <td>{{u.name}}</td>
+            <td>{{u.email}}</td>
+            <td>
+                <form method="post" action="/admin/usuarios/{{u.id}}/atualizar" class="inline">
+                    <select name="role">
+                        <option value="colaborador" {% if u.role == 'colaborador' %}selected{% endif %}>Colaborador</option>
+                        <option value="gestor" {% if u.role == 'gestor' %}selected{% endif %}>Gestor</option>
+                        <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Admin</option>
+                    </select>
+                    <button type="submit">Salvar</button>
+                </form>
+            </td>
+            <td>
+                <form method="post" action="/admin/usuarios/{{u.id}}/resetar-senha" class="inline">
+                    <input name="new_password" type="password" placeholder="Nova senha" minlength="8" required>
+                    <button>Resetar</button>
+                </form>
+                
+                <form method="post" action="/admin/usuarios/{{u.id}}/excluir" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
+                    <button type="submit" style="background-color: #dc3545; color: white; margin-left: 5px;">Excluir</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
 {% endblock %}
