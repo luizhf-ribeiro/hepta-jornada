@@ -115,7 +115,11 @@ def get_conn():
 
 def init_db():
     if DB_ENGINE == 'postgres':
-        init_postgres()
+        try:
+            init_postgres()
+        except Exception as e:
+            logger.error(f"❌ Falha ao conectar no banco (Supabase). A aplicação vai continuar sem DB por enquanto: {e}")
+            # Não levanta erro → permite que a app suba
     else:
         init_sqlite()
 
