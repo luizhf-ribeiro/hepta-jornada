@@ -1,1 +1,4 @@
+fastapi
+uvicorn
+gunicorn
 pytz==2026.2
