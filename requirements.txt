@@ -1,4 +1,6 @@
 fastapi
 uvicorn
 gunicorn
+jinja2
+python-multipart
 pytz==2026.2
