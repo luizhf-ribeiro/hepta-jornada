@@ -123,9 +123,17 @@ DOC_CURRENT_BLANK = 'corrente_modelo'
 def doc_type_label(doc_type: str):
     return 'Folha preenchida do mês anterior' if doc_type == DOC_PREVIOUS_COMPLETED else 'Folha do mês corrente'
 
+import pytz
+from datetime import datetime, date, time
+
+# Definição do fuso horário de Brasília
+TZ_SP = pytz.timezone('America/Sao_Paulo')
+
 def check_jornada_release(user_id: int, ref_date: date | None = None):
     d = ref_date or date.today()
-    now = datetime.now()
+    # Ajuste: capturando a hora atual no fuso de Brasília
+    now = datetime.now(TZ_SP)
+    
     fbd = first_business_day(d.year, d.month)
     required = previous_month_ref(d)
     current_ref = d.strftime('%Y-%m')
@@ -137,6 +145,8 @@ def check_jornada_release(user_id: int, ref_date: date | None = None):
     # No 1º dia útil até o horário configurado, permite registro para o colaborador anexar a folha.
     deadline_h, deadline_m = [int(x) for x in FIRST_BUSINESS_DAY_DEADLINE.split(':')]
     deadline = time(deadline_h, deadline_m)
+    
+    # O now.time() extraído do objeto com timezone já reflete a hora correta de Brasília
     if d == fbd and now.time() <= deadline:
         return {'released': True, 'required_month': required, 'reason': None, 'first_business_day': fbd.isoformat(), 'deadline': FIRST_BUSINESS_DAY_DEADLINE}
 
@@ -382,18 +392,29 @@ def adjustments(request: Request):
     conn.close()
     return templates.TemplateResponse(request=request, name='ajustes.html', context={'request': request, 'user':user,'rows':rows})
 
+import pytz
+from datetime import datetime
+# ... outros imports ...
+
+# Certifique-se de que esta constante esteja definida no seu arquivo
+TZ_SP = pytz.timezone('America/Sao_Paulo')
+
 @app.post('/ajustes/novo')
 def new_adjustment(request: Request, target_date: str = Form(...), event_type: str = Form(...), requested_time: str = Form(''), reason: str = Form(...), evidence: UploadFile|None = File(None)):
     user = require_user(request)
     path = None
     if evidence and evidence.filename:
-        safe = f"evidencia_{user['id']}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{Path(evidence.filename).name}"
+        # Ajuste: utilizando o fuso de Brasília para a marca de tempo no nome do arquivo
+        timestamp_sp = datetime.now(TZ_SP).strftime('%Y%m%d%H%M%S')
+        safe = f"evidencia_{user['id']}_{timestamp_sp}_{Path(evidence.filename).name}"
         path = str(UPLOAD_DIR/safe)
         with open(path,'wb') as f: shutil.copyfileobj(evidence.file, f)
+        
     conn = get_conn()
     cur = conn.execute('INSERT INTO adjustment_requests(user_id,target_date,event_type,requested_time,reason,evidence_path) VALUES(?,?,?,?,?,?)',
                         (user['id'], target_date, event_type, requested_time, reason, path))
     conn.commit(); aid = cur.lastrowid; conn.close()
+    
     log(user['id'], 'SOLICITOU_AJUSTE', 'adjustment_requests', aid, f'{target_date} {event_type}', request)
     return redirect('/ajustes')
 
