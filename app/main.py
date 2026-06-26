@@ -299,20 +299,31 @@ def login_page(request: Request):
 
 @app.post('/login')
 def login(request: Request, email: str = Form(...), password: str = Form(...)):
-    conn = get_conn(); user = conn.execute('SELECT * FROM users WHERE email=? AND active=1', (email.lower(),)).fetchone(); conn.close()
-    print(f"DEBUG: E-mail buscado: {email.lower()}")
+    conn = get_conn()
+    user = conn.execute('SELECT * FROM public.users WHERE email=? AND active=1', (email.lower().strip(),)).fetchone()
+    conn.close() # 2. Fechar imediatamente após a consulta
+    print(f"DEBUG: E-mail buscado: '{email.lower().strip()}'")
     print(f"DEBUG: Usuário encontrado: {user}")
+    valida = False
     if user:
         valida = verify_password(password, user['password_hash'])
         print(f"DEBUG: Senha é válida: {valida}")
-    if not user or not verify_password(password, user['password_hash']):
-        conn = get_conn(); conn.execute('INSERT INTO login_history(email,success,ip,user_agent) VALUES(?,?,?,?)', (email.lower(),0, request.client.host if request.client else None, request.headers.get('user-agent'))); conn.commit(); conn.close()
+    if not user or not valida:
+        conn = get_conn()
+        conn.execute('INSERT INTO login_history(email,success,ip,user_agent) VALUES(?,?,?,?)', 
+                     (email.lower(), 0, request.client.host if request.client else None, request.headers.get('user-agent')))
+        conn.commit()
+        conn.close()
         log(None, 'LOGIN_FALHA', 'auth', details=email, request=request)
         return templates.TemplateResponse(request=request, name='login.html', context={'request': request, 'error':'Usuário ou senha inválidos'})
     token = create_session(user['id'])
-    conn = get_conn(); conn.execute('INSERT INTO login_history(user_id,email,success,ip,user_agent) VALUES(?,?,?,?,?)', (user['id'], email.lower(),1, request.client.host if request.client else None, request.headers.get('user-agent'))); conn.commit(); conn.close()
+    conn = get_conn()
+    conn.execute('INSERT INTO login_history(user_id,email,success,ip,user_agent) VALUES(?,?,?,?,?)', 
+                 (user['id'], email.lower(), 1, request.client.host if request.client else None, request.headers.get('user-agent')))
+    conn.commit()
+    conn.close()
     log(user['id'], 'LOGIN_SUCESSO', 'auth', request=request)
-    if user['must_change_password']:
+    if user.get('must_change_password'):
         resp = redirect('/alterar-senha')
     else:
         resp = redirect('/')
