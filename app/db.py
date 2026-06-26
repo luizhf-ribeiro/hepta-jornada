@@ -85,26 +85,27 @@ def get_conn():
         import psycopg
         from psycopg.rows import dict_row
 
-        retries = 8
+        retries = 12
         for attempt in range(retries):
             try:
                 conn = psycopg.connect(
                     DATABASE_URL,
                     row_factory=dict_row,
-                    connect_timeout=15,
+                    connect_timeout=25,
                     keepalives=1,
-                    keepalives_idle=30,
+                    keepalives_idle=60,
                     keepalives_interval=10,
-                    keepalives_count=5
+                    keepalives_count=5,
+                    sslmode='require'  # Força SSL
                 )
                 logger.info("✅ Conexão com Supabase realizada com sucesso!")
                 return PgCompatConnection(conn)
             except Exception as e:
                 logger.warning(f"❌ Tentativa {attempt+1}/{retries} falhou: {e}")
                 if attempt == retries - 1:
-                    logger.error("❌ Não foi possível conectar ao Supabase.")
+                    logger.error("❌ Falha final na conexão com Supabase.")
                     raise
-                time.sleep(3 * (attempt + 1))
+                time.sleep(5 * (attempt + 1))  # backoff mais agressivo
 
     # SQLite fallback
     conn = sqlite3.connect(DB_PATH)
