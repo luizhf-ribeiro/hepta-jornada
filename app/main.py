@@ -703,3 +703,30 @@ def audit_page(request: Request):
     user = require_role(request, ['gestor','admin'])
     conn = get_conn(); rows = conn.execute('''SELECT a.*, u.name FROM audit_logs a LEFT JOIN users u ON u.id=a.user_id ORDER BY a.created_at DESC LIMIT 500''').fetchall(); conn.close()
     return templates.TemplateResponse(request=request, name='auditoria.html', context={'request': request, 'user':user,'rows':rows})
+
+@app.post('/admin/usuarios/{user_id}/atualizar')
+def update_user_role(request: Request, user_id: int, role: str = Form(...)):
+    # Proteção: Apenas 'admin' pode alterar perfis
+    require_role(request, ['admin']) 
+    
+    conn = get_conn()
+    conn.execute('UPDATE users SET role=? WHERE id=?', (role, user_id))
+    conn.commit()
+    conn.close()
+    return RedirectResponse('/admin', status_code=303)
+
+@app.post('/admin/usuarios/{user_id}/excluir')
+def delete_user(request: Request, user_id: int):
+    # Proteção: Apenas 'admin' pode excluir
+    user_info = require_role(request, ['admin'])
+    
+    # Prevenção: Impedir que o admin exclua a si mesmo
+    if user_info['id'] == user_id:
+        return templates.TemplateResponse(request=request, name='admin.html', 
+                                          context={'request': request, 'error': 'Você não pode excluir a si mesmo.'})
+
+    conn = get_conn()
+    conn.execute('DELETE FROM users WHERE id=?', (user_id,))
+    conn.commit()
+    conn.close()
+    return RedirectResponse('/admin', status_code=303)
