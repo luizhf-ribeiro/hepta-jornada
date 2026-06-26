@@ -127,12 +127,8 @@ def init_db():
 
 def init_postgres():
     conn = get_conn()
+    cur = conn.cursor()
     
-    ddl = '''
-    CREATE TABLE IF NOT EXISTS users (...);  -- (coloque aqui todo o DDL completo)
-    '''  # ← Vamos completar isso
-
-    # DDL completo (mesmo do seu arquivo original)
     ddl = '''
     CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -274,14 +270,14 @@ def init_postgres():
     );
     '''
 
+    # Executa cada comando individualmente dentro de um try/except
     for stmt in [s.strip() for s in ddl.split(';') if s.strip()]:
-        if stmt:
+        try:
             conn.execute(stmt)
-
-    conn.commit()
-    conn.close()
-    logger.info("✅ Banco PostgreSQL inicializado com sucesso.")
-
+            conn.commit()
+        except Exception as e: # <--- O erro acontece se esta linha estiver faltando
+            conn.rollback()
+            logger.warning(f"Aviso: {e}")
 
 def init_sqlite():
     # Seu código original do init_sqlite (mantido igual)
