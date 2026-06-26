@@ -59,14 +59,19 @@
                 </form>
             </td>
             <td>
-                <form method="post" action="/admin/usuarios/{{u.id}}/resetar-senha" class="inline">
-                    <input name="new_password" type="password" placeholder="Nova senha" minlength="8" required>
-                    <button>Resetar</button>
-                </form>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
                 
-                <form method="post" action="/admin/usuarios/{{u.id}}/excluir" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
-                    <button type="submit" style="background-color: #dc3545; color: white; margin-left: 5px;">Excluir</button>
+                <form method="post" action="/admin/usuarios/{{u.id}}/resetar-senha" class="inline">
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <input name="new_password" type="password" placeholder="Nova senha" minlength="8" required style="width: 120px;">
+                        <button type="submit">Resetar</button>
+                    </div>
                 </form>
+
+                <form method="post" action="/admin/usuarios/{{u.id}}/excluir" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
+                    <button type="submit" style="background-color: #dc3545; color: white; width: 100%;">Excluir</button>
+                </form>
+                </div>
             </td>
         </tr>
         {% endfor %}
