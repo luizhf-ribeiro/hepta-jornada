@@ -300,6 +300,11 @@ def login_page(request: Request):
 @app.post('/login')
 def login(request: Request, email: str = Form(...), password: str = Form(...)):
     conn = get_conn(); user = conn.execute('SELECT * FROM users WHERE email=? AND active=1', (email.lower(),)).fetchone(); conn.close()
+    print(f"DEBUG: E-mail buscado: {email.lower()}")
+    print(f"DEBUG: Usuário encontrado: {user}")
+    if user:
+        valida = verify_password(password, user['password_hash'])
+        print(f"DEBUG: Senha é válida: {valida}")
     if not user or not verify_password(password, user['password_hash']):
         conn = get_conn(); conn.execute('INSERT INTO login_history(email,success,ip,user_agent) VALUES(?,?,?,?)', (email.lower(),0, request.client.host if request.client else None, request.headers.get('user-agent'))); conn.commit(); conn.close()
         log(None, 'LOGIN_FALHA', 'auth', details=email, request=request)
