@@ -368,13 +368,22 @@ def mark_time(event_type: str, request: Request):
         if not release['released']:
             log(user['id'], 'BLOQUEIO_REGISTRO_SEM_FOLHA_ASSINADA', 'time_records', None, release.get('reason'), request)
             return redirect('/folha-preenchida?bloqueado=1')
+    
     today = date.today().isoformat()
+    # Pega o horário atual convertido para o fuso de Brasília
+    now_sp = datetime.now(TZ_SP).strftime('%Y-%m-%d %H:%M:%S')
+    
     conn = get_conn()
     exists = conn.execute('SELECT id FROM time_records WHERE user_id=? AND record_date=? AND event_type=?', (user['id'], today, event_type)).fetchone()
     if exists:
         conn.close(); return redirect('/?erro=duplicado')
+    
     ua = request.headers.get('user-agent'); ip = request.client.host if request.client else None
-    cur = conn.execute('INSERT INTO time_records(user_id,record_date,event_type,ip,user_agent) VALUES(?,?,?,?,?)', (user['id'], today, event_type, ip, ua))
+    
+    # Inclui 'server_time' e o valor 'now_sp' no comando SQL
+    cur = conn.execute('INSERT INTO time_records(user_id,record_date,event_type,ip,user_agent,server_time) VALUES(?,?,?,?,?,?)', 
+                       (user['id'], today, event_type, ip, ua, now_sp))
+    
     conn.commit(); rid = cur.lastrowid; conn.close()
     log(user['id'], 'REGISTRO_PONTO', 'time_records', rid, event_type, request)
     return redirect('/')
